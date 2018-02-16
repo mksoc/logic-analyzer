@@ -1,0 +1,51 @@
+library ieee;
+use ieee.std_logic_1164.all;
+
+ENTITY NEGATIVE_EDGE_DETECTOR IS 
+PORT (
+EXT_IN : IN STD_LOGIC; 
+CLK : IN STD_LOGIC ;
+ALTERNATE : IN STD_LOGIC;
+nRESET: IN STD_LOGIC;
+FALLING : BUFFER STD_LOGIC
+);
+END NEGATIVE_EDGE_DETECTOR;
+
+ARCHITECTURE BEH OF NEGATIVE_EDGE_DETECTOR IS 
+
+component NEGATIVE_EDGE 
+port( 
+	D : in std_logic;
+	ENA : in std_logic;
+	CLRN : in std_logic;
+	SLOPE_DOWN : out std_logic
+	);
+	end component ;
+	
+	
+SIGNAL  RESET_0,RESET_1,DOWN_0,DOWN_1 : STD_LOGIC;
+	
+BEGIN 
+
+RESET_0 <= NOT(nRESET) or ALTERNATE;
+
+RESET_1 <= NOT(nRESET) or not(ALTERNATE);
+
+P_DETECT_1 : NEGATIVE_EDGE port map(  
+	D => '1' ,
+	ENA => EXT_IN,
+	CLRN => RESET_0 ,
+	SLOPE_DOWN => DOWN_0 
+	);
+
+P_DETECT_2 : NEGATIVE_EDGE port map(  
+	D => '1' ,
+	ENA => EXT_IN,
+	CLRN => RESET_1 ,
+	SLOPE_DOWN => DOWN_1
+	);
+
+FALLING <= DOWN_0 or DOWN_1;
+
+
+END BEH ;
